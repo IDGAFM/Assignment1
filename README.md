@@ -60,7 +60,7 @@ After generating CSV files, run the plotting script:
 py -3 res.py res/quicksort.csv
 ```
 
-![quicksort_performance.png](images/quicksort_performance.png)
+<img width="1000" height="600" alt="mergesort_performance" src="https://github.com/user-attachments/assets/b6ccacb8-d85c-4c21-91a5-67fc96948742" />
 
 ```markdown
 ###  Graph
@@ -109,7 +109,8 @@ mvn test
 
 
 ### Quicksort Performance
-![Quicksort Performance](images/quicksort_performance.png)
+<img width="1000" height="600" alt="mergesort_performance" src="https://github.com/user-attachments/assets/b6ccacb8-d85c-4c21-91a5-67fc96948742" />
+
 
 ### Mergesort Performance
-![Mergesort Performance](images/mergesort_performance.png)
+<img width="1000" height="600" alt="quicksort_performance" src="https://github.com/user-attachments/assets/ca382806-bacc-432d-b650-9d495a7cbe85" />
