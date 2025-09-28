@@ -10,8 +10,8 @@ public class Metrics {
     private long startTimeNanos = 0;
 
 
-    public synchronized void intComparisons() { comparisons++; }
-    public synchronized void intCopies() { copies++; }
+    public synchronized void incComparisons() { comparisons++; }
+    public synchronized void incCopies() { copies++; }
 
 
     public synchronized void enterRecursion(){
