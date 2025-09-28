@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.example</groupId>
     <artifactId>Assignment1</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>Assignment1</name>
 
+    <!-- Параметры по умолчанию (можно переопределять через -D) -->
     <properties>
-        <maven.compiler.source>24</maven.compiler.source>
-        <maven.compiler.target>24</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Java release -->
+        <maven.compiler.release>17</maven.compiler.release>
+
+        <!-- Параметры бенча по умолчанию -->
+        <bench.n>10000</bench.n>
+        <bench.trials>5</bench.trials>
+        <res.dir>res</res.dir>
+
+        <!-- Python executable (на Windows обычно 'py', на *nix 'python3') -->
+        <python.exec>py</python.exec>
+        <python.flag>-3</python.flag>
+
+        <!-- main class -->
+        <app.mainClass>org.example.Main</app.mainClass>
     </properties>
 
     <dependencies>
+        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -26,23 +42,126 @@
 
     <build>
         <plugins>
-            <!-- surefire для JUnit5 -->
+
+            <!-- Компилятор (используем release чтобы правильно выставлять модули JDK) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                </configuration>
+            </plugin>
+
+            <!-- Surefire для тестов -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
             </plugin>
 
-            <!-- exec для запуска Main -->
+            <!-- Exec plugin: интерактивный запуск и (в профиле) автоматические exec-исполнения -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
+
+                <!-- корневая конфигурация: для вызова mvn exec:java без ошибок -->
                 <configuration>
-                    <mainClass>org.example.Main</mainClass>
+                    <mainClass>${app.mainClass}</mainClass>
                 </configuration>
+
+                <executions>
+                    <!-- Не добавляем жёсткие автоматические запуски по умолчанию (чтобы пользователь контролировал).
+                         В профиле bench мы добавим необходимые executions. -->
+                </executions>
             </plugin>
+
         </plugins>
     </build>
+
+    <!-- Профиль bench — если хочешь прогнать оба алгоритма автоматически и затем Python -->
+    <profiles>
+        <profile>
+            <id>bench</id>
+            <activation>
+                <!-- не активируем по умолчанию -->
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+
+                            <!-- Выполнить quicksort -->
+                            <execution>
+                                <id>run-quicksort</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>${app.mainClass}</mainClass>
+                                    <arguments>
+                                        <argument>quicksort</argument>
+                                        <argument>${bench.n}</argument>
+                                        <argument>${bench.trials}</argument>
+                                        <argument>${res.dir}/quicksort.csv</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+
+                            <!-- Выполнить mergesort -->
+                            <execution>
+                                <id>run-mergesort</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>${app.mainClass}</mainClass>
+                                    <arguments>
+                                        <argument>mergesort</argument>
+                                        <argument>${bench.n}</argument>
+                                        <argument>${bench.trials}</argument>
+                                        <argument>${res.dir}/mergesort.csv</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+
+                            <!-- После компиляции/бенчей запускаем python-скрипт (в фазе verify),
+                                 который построит графики и обновит README.
+                                 Заменяем имя файла на то, что нужно. -->
+                            <execution>
+                                <id>run-python</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${python.exec}</executable>
+                                    <arguments>
+                                        <argument>${python.flag}</argument>
+                                        <argument>res.py</argument>
+                                        <!-- Передаём оба CSV подряд или можно вызвать по одному.
+                                             Тут пример — сначала quicksort, потом mergesort -->
+                                        <argument>${res.dir}/quicksort.csv</argument>
+                                        <!-- Если res.py умеет обрабатывать сразу 2 файла — можно добавить еще аргумент -->
+                                    </arguments>
+                                </configuration>
+                            </execution>
+
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
