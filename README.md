@@ -63,7 +63,7 @@ py -3 res.py res/quicksort.csv
 ![quicksort_performance.png](images/quicksort_performance.png)
 
 ```markdown
-### 📈 Example Graph
+###  Graph
 Merge Sort
 ![MergeSort Performance](images/mergesort_performance.png)
 
@@ -106,14 +106,10 @@ mvn test
 ##  Author
 - [Tynbayev Maden]  
 
-### Quicksort Performance
 
-![quicksort](images/quicksort_performance.png)
 
 ### Quicksort Performance
-
-![quicksort](images/quicksort_performance.png)
+![Quicksort Performance](images/quicksort_performance.png)
 
 ### Mergesort Performance
-
-![mergesort](images/mergesort_performance.png)
+![Mergesort Performance](images/mergesort_performance.png)
